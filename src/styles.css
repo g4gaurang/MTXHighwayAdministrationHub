@@ -9,13 +9,13 @@
   --navy-2: #123e5d;
   --blue: #147dad;
   --blue-dark: #0b668e;
-  --teal: #159a90;
+  --teal: #08766e;
   --amber: #d97b27;
   --cream: #f7f7f3;
   --mist: #eaf1f3;
   --line: #d7e0e2;
   --ink: #163247;
-  --muted: #5d707e;
+  --muted: #536976;
   --white: #fff;
   --shadow: 0 18px 50px rgba(11, 43, 69, .11);
 }
@@ -118,7 +118,7 @@ p { line-height: 1.68; color: var(--muted); }
 .selector-layout { display: grid; grid-template-columns: .85fr 1.15fr; gap: clamp(25px, 5vw, 75px); align-items: stretch; }
 .challenge-list { display: flex; flex-direction: column; }
 .challenge-list button { min-height: 67px; display: grid; grid-template-columns: 35px 1fr 20px; gap: 7px; align-items: center; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: transparent; padding: 12px 13px; cursor: pointer; font-weight: 700; font-size: 14px; }
-.challenge-list button span { color: #8a9aa2; font-size: 10px; }
+.challenge-list button span { color: #5f7078; font-size: 10px; }
 .challenge-list button svg { opacity: 0; }
 .challenge-list button.active { background: var(--navy); color: #fff; border-radius: 8px; }
 .challenge-list button.active span { color: #57d6c8; }
@@ -140,7 +140,7 @@ p { line-height: 1.68; color: var(--muted); }
 .lifecycle-section { background: #fff; }
 .lifecycle-nav { display: grid; grid-template-columns: repeat(7,1fr); position: relative; margin-bottom: 30px; }
 .lifecycle-nav::before { content: ''; position: absolute; height: 2px; top: 20px; left: 7%; right: 7%; background: var(--line); }
-.lifecycle-nav button { position: relative; z-index: 1; border: 0; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 11px; padding: 0 5px; color: #71838d; }
+.lifecycle-nav button { position: relative; z-index: 1; border: 0; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 11px; padding: 0 5px; color: #5e717a; }
 .lifecycle-nav button span { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--line); background: #fff; font-size: 11px; }
 .lifecycle-nav button b { font-size: 11px; }
 .lifecycle-nav button.active { color: var(--blue-dark); }
@@ -148,6 +148,7 @@ p { line-height: 1.68; color: var(--muted); }
 .stage-panel { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
 .stage-summary { display: grid; grid-template-columns: 120px 1fr; gap: 25px; padding: clamp(28px, 4vw, 52px); background: var(--navy); color: #fff; }
 .stage-number { font-family: Manrope; font-size: 75px; line-height: 1; color: #51cfc1; font-weight: 800; }
+.stage-summary .eyebrow { color: #61d8ca; }
 .stage-summary h3 { color: #fff; font-size: 30px; margin-bottom: 10px; }
 .stage-summary p { color: #c8d5dc; max-width: 680px; }
 .stage-summary h4 { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
@@ -167,6 +168,7 @@ p { line-height: 1.68; color: var(--muted); }
 .command-brand { display: flex; align-items: center; gap: 10px; color: #fff; }
 .command-brand > span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 7px; background: var(--blue); }
 .command-brand div { display: flex; flex-direction: column; }
+.command-brand small { color: #a9bec8; }
 .command-header .demo-label { color: #b8cad3; }
 .command-tabs { display: flex; gap: 7px; overflow-x: auto; padding: 13px 18px; border-bottom: 1px solid var(--line); }
 .command-tabs button { min-width: 85px; min-height: 37px; padding: 7px 14px; border: 0; border-radius: 6px; background: transparent; cursor: pointer; font-weight: 700; font-size: 11px; }
@@ -178,6 +180,7 @@ p { line-height: 1.68; color: var(--muted); }
 .command-metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
 .command-metrics > div { padding: 17px; border: 1px solid var(--line); border-radius: 8px; display: flex; flex-direction: column; }
 .command-metrics span { font-size: 10px; color: var(--muted); }
+.command-metrics small { color: #5d7078; }
 .command-metrics b { margin: 5px 0; font-size: 24px; color: var(--navy); }
 .chart-panel { padding: 20px 10px 5px; border-radius: 8px; background: #f7f9f9; min-height: 280px; }
 .large-map { display: grid; grid-template-columns: 1.3fr .7fr; gap: 25px; margin-bottom: 22px; }
@@ -213,6 +216,7 @@ td:first-child { color: var(--navy); font-weight: 700; }
 .capability-card:hover { transform: translateY(-4px); border-color: #8db8c6; }
 .capability-card.active { background: var(--navy); border-color: var(--navy); }
 .cap-number { color: var(--teal); font: 800 11px Manrope; letter-spacing: .08em; }
+.capability-card.active .cap-number { color: #61d8ca; }
 .capability-card h3 { margin: 35px 0 12px; font-size: 18px; }
 .capability-card p { font-size: 12px; }
 .capability-card.active h3, .capability-card.active p, .capability-card.active .explore { color: #fff; }
@@ -229,6 +233,7 @@ td:first-child { color: var(--navy); font-weight: 700; }
 .program-flow div b { max-width: 110px; font-size: 10px; line-height: 1.4; }
 .program-flow div > svg { position: absolute; right: 8px; top: 7px; width: 14px; color: #8ca0aa; }
 .scenario-shell { display: grid; grid-template-columns: .9fr 1.1fr; gap: 50px; padding: clamp(30px, 5vw, 55px); border-radius: 14px; background: var(--navy); color: #fff; }
+.scenario-copy .eyebrow { color: #61d8ca; }
 .scenario-copy h3 { color: #fff; font-size: 28px; }
 .scenario-copy p { color: #c4d2d9; }
 .scenario-buttons { display: flex; flex-wrap: wrap; gap: 7px; margin: 24px 0; }
@@ -316,7 +321,7 @@ select { min-width: 150px; min-height: 42px; }
 .roadmap-tabs button.active { border-bottom-color: var(--teal); background: #fff; color: var(--blue-dark); }
 .roadmap-panel { display: grid; grid-template-columns: 1fr 1.2fr; gap: 50px; align-items: center; padding: clamp(30px, 5vw, 55px); background: #fff; }
 .roadmap-panel > div { display: grid; grid-template-columns: 95px 1fr; }
-.phase-marker { grid-row: span 2; color: #dcebed; font: 800 75px/1 Manrope; }
+.phase-marker { grid-row: span 2; color: #78929b; font: 800 75px/1 Manrope; }
 .roadmap-panel .eyebrow { align-self: end; margin: 0; }
 .roadmap-panel h3 { font-size: 25px; margin: 5px 0; }
 .roadmap-panel li { display: flex; align-items: center; gap: 9px; margin: 10px 0; padding: 10px; border: 1px solid var(--line); border-radius: 7px; font-size: 11px; font-weight: 600; }

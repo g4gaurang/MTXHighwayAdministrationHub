@@ -1,4 +1,4 @@
-import { FormEvent, KeyboardEvent, useEffect, useId, useRef, useState } from 'react'
+import { FormEvent, KeyboardEvent, useCallback, useEffect, useId, useRef, useState } from 'react'
 import {
   Activity,
   AlertTriangle,
@@ -257,21 +257,32 @@ function RoadMapGraphic() {
 function Modal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [sent, setSent] = useState(false)
   const closeRef = useRef<HTMLButtonElement>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
   const titleId = useId()
+  const close = useCallback(() => { setSent(false); onClose() }, [onClose])
   useEffect(() => {
     if (!open) return
     closeRef.current?.focus()
-    const onKey = (event: globalThis.KeyboardEvent) => { if (event.key === 'Escape') onClose() }
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Escape') close()
+      if (event.key !== 'Tab') return
+      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href]')
+      if (!focusable?.length) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
+    }
     document.addEventListener('keydown', onKey)
     document.body.classList.add('modal-open')
     return () => { document.removeEventListener('keydown', onKey); document.body.classList.remove('modal-open') }
-  }, [open, onClose])
+  }, [open, close])
   if (!open) return null
   const submit = (event: FormEvent) => { event.preventDefault(); setSent(true) }
   return (
-    <div className="modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.currentTarget === e.target) onClose() }}>
-      <div className="modal" role="dialog" aria-modal="true" aria-labelledby={titleId}>
-        <button ref={closeRef} className="icon-button modal-close" onClick={onClose} aria-label="Close request form"><X /></button>
+    <div className="modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.currentTarget === e.target) close() }}>
+      <div ref={dialogRef} className="modal" role="dialog" aria-modal="true" aria-labelledby={titleId}>
+        <button ref={closeRef} className="icon-button modal-close" onClick={close} aria-label="Close request form"><X /></button>
         {!sent ? <>
           <span className="eyebrow">Product conversation</span>
           <h2 id={titleId}>Request a demonstration</h2>
@@ -287,7 +298,7 @@ function Modal({ open, onClose }: { open: boolean; onClose: () => void }) {
             <label>Message<textarea name="message" rows={4} placeholder="What would be useful to discuss?" /></label>
             <button className="button primary" type="submit">Save prototype request <ArrowRight size={17} /></button>
           </form>
-        </> : <div className="confirmation" role="status"><span className="success-icon"><Check /></span><h2 id={titleId}>Request saved locally</h2><p>No information was transmitted. Connect this form to an approved agency contact workflow before publication.</p><button className="button primary" onClick={onClose}>Close</button></div>}
+        </> : <div className="confirmation" role="status"><span className="success-icon"><Check /></span><h2 id={titleId}>Request saved locally</h2><p>No information was transmitted. Connect this form to an approved agency contact workflow before publication.</p><button className="button primary" onClick={close}>Close</button></div>}
       </div>
     </div>
   )
@@ -322,7 +333,9 @@ function App() {
   const tabKeys = (event: KeyboardEvent, current: number, length: number, setter: (value: number) => void) => {
     if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return
     event.preventDefault()
-    setter((current + (event.key === 'ArrowRight' ? 1 : -1) + length) % length)
+    const next = (current + (event.key === 'ArrowRight' ? 1 : -1) + length) % length
+    setter(next)
+    event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('button')[next]?.focus()
   }
   const selectedStage = lifecycle[stage]
   const selectedRisk = riskData[risk]
@@ -427,7 +440,7 @@ function App() {
           <div className="command-shell">
             <div className="command-header"><div className="command-brand"><span><BarChart3 /></span><div><b>Capital Program Command Center</b><small>Illustrative agency workspace</small></div></div><DemoLabel /></div>
             <div className="command-tabs" role="tablist" aria-label="Command center views">
-              {commandTabs.map((tab) => <button role="tab" aria-selected={commandTab === tab} className={commandTab === tab ? 'active' : ''} key={tab} onClick={() => setCommandTab(tab)}>{tab}</button>)}
+              {commandTabs.map((tab, index) => <button role="tab" aria-selected={commandTab === tab} className={commandTab === tab ? 'active' : ''} key={tab} onClick={() => setCommandTab(tab)} onKeyDown={(e) => tabKeys(e, index, commandTabs.length, (next) => setCommandTab(commandTabs[next]))}>{tab}</button>)}
             </div>
             <div className="command-body" role="tabpanel">
               <div className="command-title"><div><span>SELECTED VIEW</span><h3>{tabDescriptions[commandTab]}</h3></div><span className="updated"><Clock3 size={14} /> Sample refresh 08:30</span></div>
@@ -447,7 +460,7 @@ function App() {
         <section className="section roles-section">
           <SectionHeading eyebrow="Role-based experiences" title="Give each team a useful view of the same program." copy="Experiences focus attention on the work, decisions, and conditions relevant to each role." />
           <div className="role-layout">
-            <div className="role-tabs" role="tablist" aria-label="Agency roles">{roles.map((item, index) => { const Icon = item.icon; return <button role="tab" aria-selected={role === index} className={role === index ? 'active' : ''} onClick={() => setRole(index)} key={item.name}><Icon size={18} />{item.name}<ArrowRight size={15} /></button> })}</div>
+            <div className="role-tabs" role="tablist" aria-label="Agency roles">{roles.map((item, index) => { const Icon = item.icon; return <button role="tab" aria-selected={role === index} className={role === index ? 'active' : ''} onClick={() => setRole(index)} onKeyDown={(e) => tabKeys(e, role, roles.length, setRole)} key={item.name}><Icon size={18} />{item.name}<ArrowRight size={15} /></button> })}</div>
             <div className="role-panel" role="tabpanel">
               <div className="role-icon">{(() => { const Icon = roles[role].icon; return <Icon /> })()}</div>
               <span className="eyebrow">Workspace outcome</span><h3>{roles[role].name}</h3><p className="large-copy">{roles[role].outcome}</p>
@@ -468,7 +481,7 @@ function App() {
           <SectionHeading eyebrow="STIP and funding programming" title="Connect planning choices to delivery conditions." copy="Support agency STIP development and coordination with a traceable flow from transportation need through infrastructure in service." />
           <div className="program-flow" aria-label="Programming lifecycle flow">{['Transportation need', 'Candidate project', 'Prioritization', 'Program selection', 'Funding assignment', 'STIP programming', 'Authorization & obligation', 'Project delivery', 'In-service outcome'].map((x, i) => <div key={x}><span>{i + 1}</span><b>{x}</b>{i < 8 && <ArrowRight />}</div>)}</div>
           <div className="scenario-shell">
-            <div className="scenario-copy"><span className="eyebrow">Illustrative scenario comparison</span><h3>Organize priorities through different agency lenses.</h3><p>{scenarios[scenario].note}</p><div className="scenario-buttons" role="tablist">{scenarios.map((x, i) => <button role="tab" aria-selected={scenario === i} className={scenario === i ? 'active' : ''} key={x.name} onClick={() => setScenario(i)}>{x.name}</button>)}</div><blockquote>Scenario tools organize information and support agency decision-making. Final investment, programming, and funding decisions remain with authorized agency officials and established planning processes.</blockquote></div>
+            <div className="scenario-copy"><span className="eyebrow">Illustrative scenario comparison</span><h3>Organize priorities through different agency lenses.</h3><p>{scenarios[scenario].note}</p><div className="scenario-buttons" role="tablist">{scenarios.map((x, i) => <button role="tab" aria-selected={scenario === i} className={scenario === i ? 'active' : ''} key={x.name} onClick={() => setScenario(i)} onKeyDown={(e) => tabKeys(e, scenario, scenarios.length, setScenario)}>{x.name}</button>)}</div><blockquote>Scenario tools organize information and support agency decision-making. Final investment, programming, and funding decisions remain with authorized agency officials and established planning processes.</blockquote></div>
             <div className="scenario-chart"><DemoLabel /><ResponsiveContainer width="100%" height={310}><BarChart layout="vertical" data={projectRows.map((row, i) => ({ name: row[0].split(' ').slice(0, 2).join(' '), score: scenarios[scenario].scores[i] }))} margin={{ left: 25, right: 25 }}><CartesianGrid strokeDasharray="3 3" horizontal={false} /><XAxis type="number" domain={[0, 100]} /><YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 11 }} /><Tooltip formatter={(value) => [`${value} / 100`, 'Illustrative score']} /><Bar dataKey="score" fill="#147dad" radius={[0, 5, 5, 0]} /></BarChart></ResponsiveContainer></div>
           </div>
         </section>
@@ -526,7 +539,7 @@ function App() {
 
         <section className="section adoption-section" id="adoption">
           <SectionHeading eyebrow="Modular adoption roadmap" title="Modernize in practical, connected increments." copy="Agencies may sequence modules according to current systems, business priorities, data readiness, and procurement strategy." />
-          <div className="roadmap-tabs" role="tablist" aria-label="Adoption roadmap phases">{roadmap.map((item, i) => <button role="tab" aria-selected={roadmapPhase === i} className={roadmapPhase === i ? 'active' : ''} onClick={() => setRoadmapPhase(i)} key={item[0]}><span>Phase {i + 1}</span><b>{item[0]}</b></button>)}</div>
+          <div className="roadmap-tabs" role="tablist" aria-label="Adoption roadmap phases">{roadmap.map((item, i) => <button role="tab" aria-selected={roadmapPhase === i} className={roadmapPhase === i ? 'active' : ''} onClick={() => setRoadmapPhase(i)} onKeyDown={(e) => tabKeys(e, roadmapPhase, roadmap.length, setRoadmapPhase)} key={item[0]}><span>Phase {i + 1}</span><b>{item[0]}</b></button>)}</div>
           <div className="roadmap-panel" role="tabpanel"><div><span className="phase-marker">0{roadmapPhase + 1}</span><span className="eyebrow">Selected adoption phase</span><h3>{roadmap[roadmapPhase][0]}</h3></div><ul>{roadmap[roadmapPhase].slice(1).map((x) => <li key={x}><Check />{x}</li>)}</ul></div>
         </section>
 
@@ -593,7 +606,7 @@ function ChartPanel({ type }: { type: string }) {
     ['Q1', 'Q2', 'Q3', 'Q4'].map((name, i) => ({ name, service: [1, 2, 3, 4][i], handoff: [58, 66, 79, 88][i] }))
   const isLine = type === 'construction' || type === 'outcomes'
   return (
-    <div className="chart-panel" aria-label={`${type} illustrative chart`}>
+    <div className="chart-panel" role="img" aria-label={`${type} illustrative chart`}>
       <ResponsiveContainer width="100%" height={260}>
         {isLine ? <LineChart data={data}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" /><YAxis /><Tooltip /><Line type="monotone" dataKey={type === 'outcomes' ? 'handoff' : 'changes'} stroke="#147dad" strokeWidth={3} /><Line type="monotone" dataKey={type === 'outcomes' ? 'service' : 'field'} stroke="#d97b27" strokeWidth={3} /></LineChart> :
           <BarChart data={data}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" tick={{ fontSize: 11 }} /><YAxis /><Tooltip /><Bar dataKey={type === 'funding' ? 'programmed' : 'value'} fill="#147dad" radius={[5, 5, 0, 0]} />{type === 'funding' && <Bar dataKey="obligated" fill="#1aa397" radius={[5, 5, 0, 0]} />}</BarChart>}
